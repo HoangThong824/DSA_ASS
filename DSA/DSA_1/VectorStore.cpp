@@ -17,7 +17,7 @@ void ArrayList<T>:: ensureCapacity(int cap){
     this->data = newData;
 }
 template <class T>
-ArrayList<T>::ArrayList(int initCapacity = 10) {
+ArrayList<T>::ArrayList(int initCapacity) {
     /*: Initializes an empty dynamic array list with an initial capacity of initCapacity.*/
     this->capacity = initCapacity;
     this->count = 0;
@@ -146,21 +146,21 @@ string ArrayList<T>::toString(string (*item2str)(T&)) const {
         if (item2str) {
             oss << item2str(data[i]);
         } else {
-            oss << to_string(data[i]);
+            oss << data[i];
         }
-        if (i < count - 1) oss << ", ";
+            if (i < count - 1) oss << ", ";
     }
     oss << "]";
     return oss.str();
 }
 
 template <class T>
-ArrayList<T>::Iterator ArrayList<T>::begin(){
+typename ArrayList<T>::Iterator ArrayList<T>::begin(){
     return Iterator(this, 0);
 }
 
 template <class T>
-ArrayList<T>::Iterator ArrayList<T>::end(){
+typename ArrayList<T>::Iterator ArrayList<T>::end(){
     return Iterator(this, count);
 }
 // ----------------- Iterator of ArrayList Implementation -----------------
@@ -180,7 +180,7 @@ ArrayList<T>::Iterator::Iterator(ArrayList<T>* pList, int index) {
 }
 
 template<class T> 
-ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator=(const ArrayList<T>::Iterator &other){
+typename ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator=(const ArrayList<T>::Iterator &other){
     /* Assigns the state from the iterator other to the current iterator.*/
     this->pList = other.pList;
     this->cursor = other.cursor;
@@ -208,7 +208,7 @@ bool ArrayList<T>::Iterator::operator!=(const ArrayList<T>::Iterator &other) con
 }
 
 template<class T> 
-ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator++(){
+typename ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator++(){
     /*  Advances the iterator to the next element (prefix, ++it).
         Throws out_of_range("Iterator cannot advance past end!") if cursor is already at count.
     */
@@ -220,7 +220,7 @@ ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator++(){
 }
 
 template<class T> 
-ArrayList<T>::Iterator ArrayList<T>::Iterator::operator++(int){
+typename ArrayList<T>::Iterator ArrayList<T>::Iterator::operator++(int){
     /*
         -Advances the iterator to the next element (postfix, it++) and returns a
     copy of the old state.
@@ -234,7 +234,7 @@ ArrayList<T>::Iterator ArrayList<T>::Iterator::operator++(int){
     return temp;
 }
 template<class T> 
-ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator--(){
+typename ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator--(){
     /*
         -Moves the iterator to the previous element (prefix, --it). If the iterator
     is currently at end(), this operation moves it to the last element.
@@ -248,7 +248,7 @@ ArrayList<T>::Iterator &ArrayList<T>::Iterator::operator--(){
 }
 
 template<class T>
- ArrayList<T>::Iterator ArrayList<T>::Iterator::operator--(int){
+typename ArrayList<T>::Iterator ArrayList<T>::Iterator::operator--(int){
     /*
         -Moves the iterator to the previous element (postfix, it--) and returns a copy of the old state.
         -Throws out_of_range("Iterator cannot move before begin!") if already at the first element.
@@ -428,28 +428,31 @@ bool SinglyLinkedList<T>::contains(T item) const{
 }
 
 template<class T>
- string SinglyLinkedList<T>::toString(string (*item2str)(T &) = 0) const{
-    string result = "";
-        Node* p = head;
-        while (p != nullptr) {
-            if (item2str != nullptr)
-                result += "[" + item2str(p->data) + "]";
-            else {
-                result += "[" + to_string(p->data) + "]";
-            }
-            if (p->next != nullptr) result += "->";
-            p = p->next;
+ string SinglyLinkedList<T>::toString(string (*item2str)(T &) ) const{
+    ostringstream oss;
+    Node* p = head;
+
+    while (p != nullptr) {
+        if (item2str != nullptr) {
+            oss << "[" << item2str(p->data) << "]";
+        } else {
+            oss << "[" << p->data << "]";
         }
-        return result;
+
+        if (p->next != nullptr) oss << "->";
+        p = p->next;
+    }
+
+    return oss.str();
 }
 
 template<class T>
-const SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::begin() const{
+const typename SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::begin() const{
     return Iterator(head);
 }
 
 template<class T>
-const SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::end() const{
+const typename SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::end() const{
     return Iterator(nullptr); 
 }
 
@@ -466,11 +469,9 @@ SinglyLinkedList<T>::Iterator::Iterator(Node* node) {
     this->current = node;
 }   
 template<class T>
-SinglyLinkedList<T>::Iterator
+typename SinglyLinkedList<T>::Iterator
 &SinglyLinkedList<T>::Iterator::operator=(const SinglyLinkedList<T>::Iterator &other){
-    this->pList = other.pList;
 	this->current = other.current;
-	this->index = other.index;
 	return *this;
  }
 
@@ -486,7 +487,7 @@ bool SinglyLinkedList<T>::Iterator::operator!=(const SinglyLinkedList<T>::Iterat
     return this->current != other.current;
 }
 template<class T> 
-SinglyLinkedList<T>::Iterator &SinglyLinkedList<T>::Iterator::operator++(){
+typename SinglyLinkedList<T>::Iterator &SinglyLinkedList<T>::Iterator::operator++(){
      if (current == nullptr) {
             throw out_of_range("Iterator cannot advance past end!");
         }
@@ -494,7 +495,7 @@ SinglyLinkedList<T>::Iterator &SinglyLinkedList<T>::Iterator::operator++(){
         return *this;
 }
 template<class T> 
-SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::Iterator::operator++(int){
+typename    SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::Iterator::operator++(int){
     if (current == nullptr) {
             throw out_of_range("Iterator cannot advance past end!");
         }
@@ -513,7 +514,7 @@ SinglyLinkedList<T>::Iterator SinglyLinkedList<T>::Iterator::operator++(int){
 
 // ----------------- VectorStore Implementation -----------------
 
-VectorStore::VectorStore(int dimension = 512, EmbedFn embeddingFunction = nullptr) {
+VectorStore::VectorStore(int dimension, EmbedFn embeddingFunction ) {
     // TODO
     this-> dimension = dimension;
     this-> count = 0;
@@ -539,7 +540,7 @@ void VectorStore::clear(){
     count = 0;
 }
 
-SinglyLinkedList<float> *VectorStore::preprocessing(std::__cxx11::string rawText){
+SinglyLinkedList<float> *VectorStore::preprocessing(std::string rawText){
     SinglyLinkedList<float>* vector = embeddingFunction(rawText);
     int length = vector->size();
 
@@ -553,7 +554,14 @@ SinglyLinkedList<float> *VectorStore::preprocessing(std::__cxx11::string rawText
     }
     return vector;
 }
-void VectorStore::addText(std::__cxx11::string rawText){
+VectorStore::VectorRecord::VectorRecord(int id, const std::string& rawText, SinglyLinkedList<float>* vector)  {
+        this->id = id;
+        this->rawText = rawText;
+        this->vector = vector;
+
+}
+void VectorStore::addText(std::string rawText){
+    
     VectorRecord* rec = new VectorRecord(count + 1, rawText, preprocessing(rawText));
     records.add(rec);
     count++;
@@ -562,7 +570,7 @@ SinglyLinkedList<float> &VectorStore::getVector(int index){
      if (index < 0 || index >= count) throw out_of_range("Invalid index!");
     return *(records.get(index)->vector);
 }
-std::__cxx11::string VectorStore::getRawText(int index) const{
+std::string VectorStore::getRawText(int index) const{
     if (index < 0 || index >= count) throw out_of_range("Invalid index!");
     return records.get(index)->rawText;
 }
@@ -578,7 +586,7 @@ bool VectorStore::removeAt(int index){
     count--;
     return true;
 }
-bool VectorStore::updateText(int index, std::__cxx11::string newRawText){
+bool VectorStore::updateText(int index, std::string newRawText){
     if (index < 0 || index >= count) throw out_of_range("Invalid index!");
     VectorRecord* rec = records.get(index);
     delete rec->vector;
@@ -590,7 +598,7 @@ bool VectorStore::updateText(int index, std::__cxx11::string newRawText){
 void VectorStore::setEmbeddingFunction(VectorStore::EmbedFn newEmbeddingFunction){
      this->embeddingFunction = newEmbeddingFunction;
 }
-void VectorStore::forEach(void (*action)(SinglyLinkedList<float> &, int, std::__cxx11::string &)){
+void VectorStore::forEach(void (*action)(SinglyLinkedList<float> &, int, std::string &)){
      for (int i = 0; i < count; i++) {
         action(*(records.get(i)->vector), records.get(i)->id, records.get(i)->rawText);
     }
@@ -630,7 +638,7 @@ double VectorStore::l2Distance(const SinglyLinkedList<float> &v1, const SinglyLi
     }
     return sqrt(sum);
 }
-int VectorStore::findNearest(const SinglyLinkedList<float> &query, const std::__cxx11::string &metric = "cosine") const{
+int VectorStore::findNearest(const SinglyLinkedList<float> &query, const std::string &metric ) const{
    int bestIdx = -1;
     double bestValue;
 
@@ -734,7 +742,7 @@ void mergeSort(double* scores, int* indices, int left, int right, bool cosineMet
     }
 }
 
-int *VectorStore::topKNearest(const SinglyLinkedList<float> &query, int k, const std::__cxx11::string &metric = "cosine") const{
+int *VectorStore::topKNearest(const SinglyLinkedList<float> &query, int k, const std::string &metric) const{
      if (metric != "cosine" && metric != "euclidean" && metric != "manhattan")
         //throw metric_error();
     if (k <= 0 || k > count) throw invalid_k_value();
