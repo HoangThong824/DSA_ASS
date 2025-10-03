@@ -672,7 +672,7 @@ int VectorStore::findNearest(const SinglyLinkedList<float> &query, const std::st
             }
         }
         else {
-            //throw metric_error();
+            throw invalid_metric();
         }
     }
     return bestIdx;
@@ -744,7 +744,7 @@ void mergeSort(double* scores, int* indices, int left, int right, bool cosineMet
 
 int *VectorStore::topKNearest(const SinglyLinkedList<float> &query, int k, const std::string &metric) const{
      if (metric != "cosine" && metric != "euclidean" && metric != "manhattan")
-        //throw metric_error();
+        throw invalid_metric();
     if (k <= 0 || k > count) throw invalid_k_value();
 
     double* scores = new double[count];
